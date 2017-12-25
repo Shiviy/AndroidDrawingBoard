@@ -52,7 +52,7 @@ public class DrawBoardHelper {
      * @param fill       是否为实心
      * @return paint object
      */
-    public static Paint cerateAndInitializePaint(int paintColor, int paintAlpha,
+    public static Paint createAndInitializePaint(int paintColor, int paintAlpha,
                                                  float paintWidth, boolean fill) {
         Paint paint = createPaint();
         initPaint(paint, paintColor, paintAlpha, paintWidth, fill);
@@ -68,14 +68,14 @@ public class DrawBoardHelper {
      *
      * @param paint
      */
-    private static void setStrokePaint(Paint paint) {
-        paint.setStyle(Paint.Style.STROKE);
+    public static void setStrokePaint(Paint paint) {
         paint.setStrokeJoin(Paint.Join.ROUND);
         paint.setStrokeCap(Paint.Cap.ROUND);
         paint.setPathEffect(new ComposePathEffect(
                 new CornerPathEffect(100f),
                 new CornerPathEffect(100f)
         ));
+        paint.setStyle(Paint.Style.STROKE);
     }
 
     /**

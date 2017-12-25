@@ -30,6 +30,7 @@ public class FreeDrawView extends View implements View.OnTouchListener {
     private Path mPath;
     private Paint mPaint;
     private ArrayList<Point> currentPoints = new ArrayList<>();
+    private ArrayList<HistoricPath> historicPaths = new ArrayList<>();
 
     public FreeDrawView(Context context) {
         this(context, null);
@@ -82,6 +83,13 @@ public class FreeDrawView extends View implements View.OnTouchListener {
         } else {
             mPath.rewind();
         }
+
+        if (historicPaths != null && historicPaths.size() > 0) {
+            for (HistoricPath historicPath : historicPaths) {
+                canvas.drawPath(historicPath.getPath(), historicPath.getPaint());
+            }
+        }
+
         boolean first = true;
         if (currentPoints.size() > 1) {
             for (Point point : currentPoints) {
@@ -100,6 +108,10 @@ public class FreeDrawView extends View implements View.OnTouchListener {
     public boolean onTouch(View v, MotionEvent event) {
 
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            if (currentPoints.size() > 0) {
+                HistoricPath historicPath = new HistoricPath(currentPoints, mPaint);
+                historicPaths.add(historicPath);
+            }
             currentPoints.clear();
         }
         if (getParent() != null) {

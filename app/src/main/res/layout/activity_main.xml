@@ -1,14 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     tools:context="com.demo.leo.androiddrawingboard.MainActivity">
 
     <com.demo.leo.androiddrawingboard.DrawingBoard.FreeDrawView
-        android:id="@+id/drawing"
+        android:id="@+id/draw_board"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="0dp"
+        android:layout_weight="1" />
 
-</RelativeLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/bt_change_color"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="change_color" />
+
+        <Button
+            android:id="@+id/bt_undo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="undo" />
+
+        <Button
+            android:id="@+id/bt_redo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="redo" />
+
+        <Button
+            android:id="@+id/bt_generate_draw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="generate" />
+    </LinearLayout>
+</LinearLayout>

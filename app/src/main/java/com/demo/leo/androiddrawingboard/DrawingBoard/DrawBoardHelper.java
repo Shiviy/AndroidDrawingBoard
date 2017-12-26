@@ -78,6 +78,12 @@ public class DrawBoardHelper {
         paint.setStyle(Paint.Style.STROKE);
     }
 
+    public static void setPaintColor(Paint paint, int paintColor) {
+        if (paint != null) {
+            paint.setColor(paintColor);
+        }
+    }
+
     /**
      * dp转px
      *

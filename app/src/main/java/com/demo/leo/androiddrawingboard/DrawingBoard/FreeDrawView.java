@@ -2,12 +2,15 @@ package com.demo.leo.androiddrawingboard.DrawingBoard;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.os.AsyncTask;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -31,6 +34,8 @@ public class FreeDrawView extends View implements View.OnTouchListener {
     private Paint mPaint;
     private ArrayList<Point> currentPoints = new ArrayList<>();
     private ArrayList<HistoricPath> historicPaths = new ArrayList<>();
+    private ArrayList<HistoricPath> historicPathsCopy = new ArrayList<>();
+    private int pointCount = 0;
 
     public FreeDrawView(Context context) {
         this(context, null);
@@ -104,14 +109,11 @@ public class FreeDrawView extends View implements View.OnTouchListener {
         }
     }
 
+
     @Override
     public boolean onTouch(View v, MotionEvent event) {
 
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            if (currentPoints.size() > 0) {
-                HistoricPath historicPath = new HistoricPath(currentPoints, mPaint);
-                historicPaths.add(historicPath);
-            }
             currentPoints.clear();
         }
         if (getParent() != null) {
@@ -123,10 +125,100 @@ public class FreeDrawView extends View implements View.OnTouchListener {
             point.setX(event.getX());
             point.setY(event.getY());
             currentPoints.add(point);
+            Log.i(TAG, "onTouch: " + pointCount++);
+        }
+
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (currentPoints.size() > 0) {
+                HistoricPath historicPath = new HistoricPath(currentPoints, mPaint);
+                historicPaths.add(historicPath);
+                historicPathsCopy.clear();
+                historicPathsCopy.addAll(historicPaths);
+            }
         }
 
         invalidate();
         return true;
+    }
+
+    public void changeColor(int paintColor) {
+        DrawBoardHelper.setPaintColor(mPaint, paintColor);
+    }
+
+    public void undo() {
+        if (historicPaths != null && historicPaths.size() > 0) {
+            historicPaths.remove(historicPaths.size() - 1);
+        }
+        currentPoints.clear();
+        invalidate();
+    }
+
+    public void redo() {
+        if (historicPathsCopy.size() > historicPaths.size()) {
+            historicPaths.add(historicPathsCopy.get(historicPaths.size()));
+        }
+        invalidate();
+    }
+
+    public void generateViewBitmap(GenerateDrawListener listener) {
+        new TakeScreenShotTask(listener).execute();
+    }
+
+    public interface GenerateDrawListener {
+        void onDrawCreated(Bitmap draw);
+
+        void onDrawCreatedError();
+    }
+
+    private class TakeScreenShotTask extends AsyncTask<Void, Void, Void> {
+
+        private int mWidth, mHeight;
+        private Bitmap mBitmap;
+        private Canvas mCanvas;
+        private GenerateDrawListener mListerner;
+
+
+        public TakeScreenShotTask(GenerateDrawListener listener) {
+            mListerner = listener;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mWidth = getWidth();
+            mHeight = getHeight();
+        }
+
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            try {
+                mBitmap = Bitmap.createBitmap(mWidth, mHeight, Bitmap.Config.ARGB_8888);
+                mCanvas = new Canvas(mBitmap);
+            } catch (Exception e) {
+                e.printStackTrace();
+                cancel(true);
+            }
+            return null;
+        }
+
+        @Override
+        protected void onCancelled() {
+            super.onCancelled();
+            if (mListerner != null) {
+                mListerner.onDrawCreatedError();
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            draw(mCanvas);
+
+            if (mListerner != null) {
+                mListerner.onDrawCreated(mBitmap);
+            }
+        }
     }
 
 }
